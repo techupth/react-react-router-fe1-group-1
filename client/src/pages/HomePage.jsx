@@ -1,10 +1,34 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
+
+  const navigate = useNavigate();
+  
+  const createProducts = ()=>{
+    navigate("/product/create")
+  };
+
+  const viewProducts = (id)=>{
+    navigate(`/product/view/${id}`)
+  };
+
+  const editProducts = (id)=>{
+    navigate(`/product/edit/${id}`)
+  };
+
+  const deleteProduct = async (id) => {
+    try {
+      await axios.delete(`http://localhost:4001/products/${id}`);
+      getProducts(); // Refresh the product list after deletion
+    } catch (error) {
+      setIsError(true);
+    }
+  }
 
   const getProducts = async () => {
     try {
@@ -25,7 +49,7 @@ function HomePage() {
     <div>
       <div className="app-wrapper">
         <h1 className="app-title">Products</h1>
-        <button>Create Product</button>
+        <button onClick={createProducts}>Create Product</button>
       </div>
       <div className="product-list">
         {products.map((product) => {
@@ -44,12 +68,12 @@ function HomePage() {
                 <h2>Product price: {product.price}</h2>
                 <p>Product description: {product.description} </p>
                 <div className="product-actions">
-                  <button className="view-button">View</button>
-                  <button className="edit-button">Edit</button>
+                  <button className="view-button" onClick={()=>{viewProducts(product.id)}}>View</button>
+                  <button className="edit-button" onClick={()=>{editProducts(product.id)}}>Edit</button>
                 </div>
               </div>
 
-              <button className="delete-button">x</button>
+              <button className="delete-button" onClick={()=>{deleteProduct(product.id)}}>x</button>
             </div>
           );
         })}
